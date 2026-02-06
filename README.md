@@ -31,8 +31,6 @@ If you find this work useful, please cite our paper:
 }
 ```
 
----
-
 ## 📋 Table of Contents
 
 - [Project Structure](#️-project-structure)
@@ -42,8 +40,6 @@ If you find this work useful, please cite our paper:
 - [Train from scratch](#️-train-from-scratch)
 - [Acknowledgments](#-acknowledgments)
 - [Contact](#-contact)
-
----
 
 ## 🏗️ Project Structure
 
