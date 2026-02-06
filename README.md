@@ -11,7 +11,7 @@
 
 </div>
 
-**CktGen** is a specification-conditioned generative framework for automated analog circuit design. Given target performance specifications (gain, bandwidth, phase margin), CktGen generates diverse valid circuit topologies through:
+**CktGen** is a specification-conditioned generative framework for automated analog circuit design. Given target performance specifications (gain, bandwidth, phase margin), CktGen generates diverse valid circuits through:
 
 **(a) Joint Representation Learning**: Maps circuits and specifications into a canonical latent space using contrastive learning and classifier guidance, enabling one-to-many mappings from specifications to circuits.
 
