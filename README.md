@@ -74,8 +74,6 @@ CktGen/
 
 </details>
 
----
-
 ## 🛠️ Installation
 
 ### Prerequisites
@@ -97,8 +95,6 @@ conda env create -f environment.yml
 conda activate cktgen
 ```
 
----
-
 ## 📊 Datasets
 
 All experiments in this work are conducted on the **Open Circuit Benchmark (OCB)** dataset. To facilitate easy reproducibility and provide a seamless "ready-to-run" experience, we have included the complete OCB datasets directly within this repository.
@@ -108,8 +104,6 @@ All experiments in this work are conducted on the **Open Circuit Benchmark (OCB)
 - The OCB dataset was originally introduced as a foundational benchmark by the authors of **CktGNN** ([Dong et al., 2023](https://github.com/zehao-dong/CktGNN)). We are deeply grateful for their pioneering contribution to the analog circuit design community, which established essential standards for benchmarking in this field.
 
 - When using this dataset, please cite the original CktGNN paper to properly acknowledge the foundational work of its authors. The data is redistributed here under the [MIT License](https://github.com/zehao-dong/CktGNN/blob/main/LICENSE) for research convenience.
-
----
 
 ### 📂 Dataset Structure
 
@@ -123,9 +117,7 @@ dataset/OCB/
     └── perform301.csv             # Performance specifications
 ```
 
----
-
-## 📈Evaluate with Pre-Trained models
+## 📈 Evaluate with Pre-Trained models
 
 ### Download Pre-trained Models
 
@@ -348,8 +340,6 @@ After downloading the pretrained models into `checkpoints` folder, run these tes
 
 </details>
 
----
-
 ## 🏋️ Train from scratch
 
 ### Training CktGen
@@ -477,14 +467,10 @@ With the evaluator loaded, the training script will automatically evaluate perfo
 
 </details>
 
----
-
 ## 🙏 Acknowledgments
 
 - We express our profound gratitude to **[Zehao Dong](https://scholar.google.com/citations?user=xcKId0oAAAAJ&hl=en), [Weidong Cao](https://sites.google.com/view/chalvescao/home), [Xuan Zhang](https://xzgroup.sites.northeastern.edu/our-team/), and the CktGNN team** for open-sourcing the OCB dataset and their pioneering work. Our research significantly benefited from the high-quality benchmarks and insights established in their work.
 - Thanks to the authors of **PACE** for their foundational architectural research.
-
----
 
 ## 💬 Contact
 
