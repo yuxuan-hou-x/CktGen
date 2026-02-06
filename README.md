@@ -5,10 +5,33 @@
 [![Paper](https://img.shields.io/badge/Paper-Engineering-blue)](https://www.sciencedirect.com/science/article/pii/S2095809925008148)
 [![arXiv](https://img.shields.io/badge/arXiv-2410.00995-b31b1b.svg)](https://arxiv.org/abs/2410.00995)
 [![Hugging Face](https://img.shields.io/badge/HuggingFace-Model-yellow)](https://huggingface.co/Yuxuan-Hou/CktGen)
-[![GitHub](https://img.shields.io/badge/GitHub-CktGen-black)](https://github.com/hhyxx/CktGen)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
+<img src="assets/teaser.png" width="600">
+
 </div>
+
+**CktGen** is a specification-conditioned generative framework for automated analog circuit design. Given target performance specifications (gain, bandwidth, phase margin), CktGen generates diverse valid circuit topologies through:
+
+**(a) Joint Representation Learning**: Maps circuits and specifications into a canonical latent space using contrastive learning and classifier guidance, enabling one-to-many mappings from specifications to circuits.
+
+**(b) Test-Time Optimization**: Searches for optimal circuits meeting target specifications using a multi-armed bandit algorithm — **no retraining required** when design requirements change.
+
+If you find this work useful, please cite our paper:
+
+```bibtex
+@article{hou2025cktgen,
+  title = {CktGen: Automated Analog Circuit Design with Generative Artificial Intelligence},
+  journal = {Engineering},
+  year = {2025},
+  issn = {2095-8099},
+  doi = {https://doi.org/10.1016/j.eng.2025.12.025},
+  url = {https://www.sciencedirect.com/science/article/pii/S2095809925008148},
+  author = {Yuxuan Hou and Hehe Fan and Jianrong Zhang and Yue Zhang and Hua Chen and Min Zhou and Faxin Yu and Roger Zimmermann and Yi Yang},
+}
+```
+
+---
 
 ## 📋 Table of Contents
 
@@ -17,7 +40,6 @@
 - [Datasets](#-datasets)
 - [Evaluate with Pre-Trained models](#evaluate-with-pre-trained-models)
 - [Train from scratch](#️-train-from-scratch)
-- [Citation](#-citation)
 - [Acknowledgments](#-acknowledgments)
 - [Contact](#-contact)
 
@@ -457,40 +479,9 @@ With the evaluator loaded, the training script will automatically evaluate perfo
 
 ---
 
-## 📖 Citation
-
-If you find this work useful, please cite our paper:
-
-### 📰 Journal Version
-
-```bibtex
-@article{hou2025cktgen,
-  title = {CktGen: Automated Analog Circuit Design with Generative Artificial Intelligence},
-  journal = {Engineering},
-  year = {2025},
-  issn = {2095-8099},
-  doi = {https://doi.org/10.1016/j.eng.2025.12.025},
-  url = {https://www.sciencedirect.com/science/article/pii/S2095809925008148},
-  author = {Yuxuan Hou and Hehe Fan and Jianrong Zhang and Yue Zhang and Hua Chen and Min Zhou and Faxin Yu and Roger Zimmermann and Yi Yang},
-}
-```
-
-### 📄 arXiv Preprint (October 2024)
-
-```bibtex
-@article{hou2024cktgen,
-  title={CktGen: Specification-Conditioned Analog Circuit Generation},
-  author={Hou, Yuxuan and Zhang, Jianrong and Chen, Hua and Zhou, Min and Yu, Faxin and Fan, Hehe and Yang, Yi},
-  journal={arXiv preprint arXiv:2410.00995},
-  year={2024}
-}
-```
-
----
-
 ## 🙏 Acknowledgments
 
-- We express our profound gratitude to **Zehao Dong, [Weidong Cao](https://sites.google.com/view/chalvescao/home), and the CktGNN team** for open-sourcing the OCB dataset and their pioneering work. Our research significantly benefited from the high-quality benchmarks and insights established in their work.
+- We express our profound gratitude to **[Zehao Dong](https://scholar.google.com/citations?user=xcKId0oAAAAJ&hl=en), [Weidong Cao](https://sites.google.com/view/chalvescao/home), [Xuan Zhang](https://xzgroup.sites.northeastern.edu/our-team/), and the CktGNN team** for open-sourcing the OCB dataset and their pioneering work. Our research significantly benefited from the high-quality benchmarks and insights established in their work.
 - Thanks to the authors of **PACE** for their foundational architectural research.
 
 ---
