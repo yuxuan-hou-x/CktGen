@@ -2,7 +2,11 @@
 
 # CktGen: Automated Analog Circuit Design with Generative Artificial Intelligence
 
-[**Paper**](https://www.sciencedirect.com/science/article/pii/S2095809925008148?via%3Dihub) | [**Hugging Face**](https://huggingface.co/Yuxuan-Hou/CktGen) | [**arXiv**](https://arxiv.org/abs/2410.00995) | [**BibTex**](#-citation)
+[![Paper](https://img.shields.io/badge/Paper-Engineering-blue)](https://www.sciencedirect.com/science/article/pii/S2095809925008148)
+[![arXiv](https://img.shields.io/badge/arXiv-2410.00995-b31b1b.svg)](https://arxiv.org/abs/2410.00995)
+[![Hugging Face](https://img.shields.io/badge/HuggingFace-Model-yellow)](https://huggingface.co/Yuxuan-Hou/CktGen)
+[![GitHub](https://img.shields.io/badge/GitHub-CktGen-black)](https://github.com/hhyxx/CktGen)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 </div>
 
@@ -13,7 +17,6 @@
 - [Datasets](#-datasets)
 - [Evaluate with Pre-Trained models](#evaluate-with-pre-trained-models)
 - [Train from scratch](#️-train-from-scratch)
-- [Parameter Reference](#️-parameter-reference)
 - [Citation](#-citation)
 - [Acknowledgments](#-acknowledgments)
 - [Contact](#-contact)
@@ -27,35 +30,24 @@
 
 ```
 CktGen/
-│
 ├── checkpoints/              # Pre-trained models (download from HuggingFace)
 │   ├── cktgen/               # CktGen models
 │   ├── evaluator/            # Performance evaluators
 │   └── baselines/            # Baseline models (CktGNN, LDT, PACE, CVAEGAN)
-│
 ├── dataset/OCB/              # Open Circuit Benchmark datasets
 │   ├── CktBench101/          # 10k circuit samples
 │   └── CktBench301/          # 50k circuit samples
-│
 ├── models/                   # Model implementations
 │   ├── architectures/        # Encoders & decoders
 │   └── modeltype/            # VAE, CktGen, LDT, CVAEGAN
-│
 ├── scripts/                  # Experiment scripts
 │   ├── train/                # Training scripts
 │   └── test/                 # Evaluation scripts
-│
 ├── train/                    # Training source code
-│
 ├── test/                     # Testing source code
-│
 ├── evaluation/               # Evaluation metrics
-│
-├── utils/                    # Utility functions
-│
-├── options/                  # CLI argument definitions
-│
-└── hg_checkpoints/           # Download tools for HuggingFace
+├── utils/                    # Utility functions (including model download)
+└── options/                  # CLI argument definitions
 ```
 
 </details>
@@ -101,14 +93,12 @@ All experiments in this work are conducted on the **Open Circuit Benchmark (OCB)
 
 ```text
 dataset/OCB/
-│
 ├── CktBench101/                   # Ckt-Bench-101 analog circuits
-│   ├── ckt_bench_101_igraph.pkl   # Serialized circuit graphs in Python iGraph format (DAGs with 10k samples)
-│   └── perform101.csv             # Performance specifications (gain, bandwidth, phase margin)
-│
+│   ├── ckt_bench_101_igraph.pkl   # Circuit graphs (10k samples)
+│   └── perform101.csv             # Performance specifications
 └── CktBench301/                   # Ckt-Bench-301 analog circuits
-    ├── ckt_bench_301_igraph.pkl   # Serialized circuit graphs in Python iGraph format (DAGs with 50k samples)
-    └── perform301.csv             # Performance specifications (gain, bandwidth, phase margin)
+    ├── ckt_bench_301_igraph.pkl   # Circuit graphs (50k samples)
+    └── perform301.csv             # Performance specifications
 ```
 
 ---
@@ -145,18 +135,17 @@ To run the evaluation tests, you need to download the pre-trained models:
    </details>
    <br>
 
-2. **Downlod from [Baidu Netdisk](https://pan.baidu.com/s/1mFmhRHf7_qIT5AOiTWoq-g)**:
+2. **Download from [Baidu Netdisk](https://pan.baidu.com/s/1mFmhRHf7_qIT5AOiTWoq-g)**:
 
    Download and extract the folders into `checkpoints/` to use with the provided scripts:
 
    ```
-   .
-   └── checkpoints/
-       ├── cktgen/
-       ├── evaluator/
-       └── baselines/
-           ├── ldt/
-           └── ...
+   checkpoints/
+   ├── cktgen/
+   ├── evaluator/
+   └── baselines/
+       ├── ldt/
+       └── ...
    ```
 
 ### Evaluating CktGen
@@ -190,7 +179,7 @@ After downloading the pretrained models into `checkpoints` folder, run these tes
   <td><code>bash scripts/test/cktgen/cktgen_cond_gen_301.sh</code></td>
 </tr>
 <tr>
-  <td rowspan="2"><b>Reconstruction & Random Generation</b></td>
+  <td rowspan="2"><b>Reconstruction<br>& Random Generation</b></td>
   <td>CktBench-101</td>
   <td><code>bash scripts/test/cktgen/cktgen_recon_101.sh</code></td>
 </tr>
@@ -501,9 +490,8 @@ If you find this work useful, please cite our paper:
 
 ## 🙏 Acknowledgments
 
-- We express our profound gratitude to **Zehao Dong and the CktGNN team** for open-sourcing the OCB dataset and their pioneering work. Our research significantly benefited from the high-quality benchmarks and insights established in their work.
+- We express our profound gratitude to **Zehao Dong, [Weidong Cao](https://sites.google.com/view/chalvescao/home), and the CktGNN team** for open-sourcing the OCB dataset and their pioneering work. Our research significantly benefited from the high-quality benchmarks and insights established in their work.
 - Thanks to the authors of **PACE** for their foundational architectural research.
-- Computing resources provided by [Institution/Cloud Provider]
 
 ---
 
