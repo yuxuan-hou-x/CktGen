@@ -2,20 +2,27 @@
 
 # CktGen: Automated Analog Circuit Design with Generative Artificial Intelligence
 
+[![Project Page](https://img.shields.io/badge/Project-Page-blue)](https://yuxuan-hou-x.github.io/CktGen/)
 [![Paper](https://img.shields.io/badge/Paper-Engineering-blue)](https://www.sciencedirect.com/science/article/pii/S2095809925008148)
 [![arXiv](https://img.shields.io/badge/arXiv-2410.00995-b31b1b.svg)](https://arxiv.org/abs/2410.00995)
 [![Hugging Face](https://img.shields.io/badge/HuggingFace-Model-yellow)](https://huggingface.co/Yuxuan-Hou/CktGen)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-<img src="assets/teaser.png" width="600">
 
 </div>
 
-**CktGen** is a specification-conditioned generative framework for automated analog circuit design. Given target performance specifications (gain, bandwidth, phase margin), CktGen generates diverse valid circuits through:
+<p align="center">
+  <img src="assets/intro.gif" width="700">
+</p>
 
-**(a) Joint Representation Learning**: Maps circuits and specifications into a canonical latent space using contrastive learning and classifier guidance, enabling one-to-many mappings from specifications to circuits.
+Every time the target Spec changes, most methods start over. **CktGen** doesn't — it generates circuits directly from the new requirements, then optimizes without retraining.
 
-**(b) Test-Time Optimization**: Searches for optimal circuits meeting target specifications using a multi-armed bandit algorithm — **no retraining required** when design requirements change.
+We are the first to formulate analog circuit synthesis as **Spec-conditioned generation (Spec2Ckt)**: given a target Spec, directly generate the corresponding circuit. Three key contributions:
+
+- **New problem formulation.** The first to cast analog circuit synthesis as Spec-conditioned generation, moving beyond repeated fixed-target optimization.
+- **One-to-many mapping via joint alignment.** Triple alignment (contrastive learning + classifier guidance + feature alignment) maps Specs and circuits into a shared latent space, preserving the one-to-many diversity of valid designs.
+- **Test-time optimization without retraining.** A multi-armed bandit algorithm searches the learned latent space for designs satisfying new target Specs — no retraining required.
+
+**CktGen** achieves **47.57%** Spec-Acc on Ckt-Bench-101 where all baselines stay below **3%**, and reaches up to **87.09%** Spec-Acc in automated design.
 
 If you find this work useful, please cite our paper:
 
