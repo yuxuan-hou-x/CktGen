@@ -1,7 +1,6 @@
 #!/bin/bash
-# Source shared environment setup
-. "$(dirname "$0")/../../../setup_env.sh"
-
+# Change to project root (cktgen/)
+cd ../../../..
 
 python -m train.train_cvaegan \
 --modelname cvaegan_cktarchi_kl_recon \

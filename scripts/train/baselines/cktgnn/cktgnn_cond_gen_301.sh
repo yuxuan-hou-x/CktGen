@@ -1,9 +1,7 @@
 #!/bin/bash
-# Source shared environment setup
-. "$(dirname "$0")/../../../setup_env.sh"
+# Change to project root (cktgen/)
+cd ../../../..
 
-
-# CUDA_VISIBLE_DEVICES=1 
 python -m train.train_cktgen \
 --data_fold_name CktBench301 \
 --data_name ckt_bench_301 \

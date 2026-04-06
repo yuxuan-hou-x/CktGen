@@ -1,9 +1,8 @@
 #!/bin/bash
-# Source shared environment setup
-. "$(dirname "$0")/../../setup_env.sh"
+# Change to project root (cktgen/)
+cd ../../..
 
-
-python -m train.train_evaluator \
+python -m test.test_rand_gen \
 --data_name ckt_bench_301 \
 --data_fold_name CktBench301 \
 --modelname evaluator_digin_nce_gde_pred \

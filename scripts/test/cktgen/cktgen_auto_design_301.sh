@@ -1,7 +1,6 @@
 #!/bin/bash
-# Source shared environment setup
-. "$(dirname "$0")/../../setup_env.sh"
-
+# Change to project root (cktgen/)
+cd ../../..
 
 python -m test.test_auto_design \
 --data_name ckt_bench_301 \
