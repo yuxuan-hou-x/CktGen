@@ -110,11 +110,6 @@ def train(args, model, datasets, logger, optimizer, scheduler):
         if (epoch % args['save_interval'] == 0) or (epoch == args['save_interval']):
             checkpoint_path = utils_paths.get_checkpoint_path(args['out_dir'], args['exp_name'], epoch)
             torch.save(model, checkpoint_path)
-            # torch.save({'model': model,
-            #             'model_state': model.state_dict(),
-            #             'optimizer': optimizer.state_dict(),
-            #             'scheduler': scheduler.state_dict()},
-            #             checkpoint_path)
 
 
         if (epoch % args['eval_interval'] == 0) or (epoch == args['epochs']):

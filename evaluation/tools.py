@@ -252,14 +252,18 @@ def extract_latents(args, model, data):
         - WARNING: Current code has bug - 'latents' undefined, should be 'mu'
     """
     model.eval()
-
-    g_batch = utils_data.collate_fn(data)
-    batch = utils_data.transforms(args, g_batch)
-
-    batch.update(model.archi.encode(batch))
-    mu, _ = batch['ckt_dists']
-    if len(mu.shape) == 3:
-        mu = mu.squeeze(0)
-    mu = mu.cpu().detach().numpy()
-
-    return mu
+    
+    all_latents = []
+    batch_size = args.get("infer_batch_size", 64)
+    
+    for i in tqdm(range(0, len(data), batch_size), desc="Extracting training latents"):
+        batch_data = data[i:i + batch_size]
+        g_batch = utils_data.collate_fn(batch_data)
+        batch = utils_data.transforms(args, g_batch)
+        batch.update(model.archi.encode(batch))
+        mu, _ = batch['ckt_dists']
+        if len(mu.shape) == 3:
+            mu = mu.squeeze(0)
+        all_latents.append(mu.cpu().detach())
+    
+    return torch.cat(all_latents, dim=0).numpy()
