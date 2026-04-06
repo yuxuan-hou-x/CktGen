@@ -9,4 +9,4 @@ python -m test.test_rand_gen \
 --infer_batch_size 128 \
 --out_dir ./output/baselines/pace \
 --exp_name pace_recon_101 \
---resume_pth ./checkpoints/baselines/pace/pace_recon_rand_gen_101.pth \
+--resume_pth ./checkpoints/baselines/pace/pace_recon_101.pth \
