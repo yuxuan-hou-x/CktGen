@@ -135,7 +135,7 @@ class PACE(nn.Module):
         mask += adj
         mem += adj
 
-        while (ite <= num_node - 2 and mem.to(torch.uint8).any()):  # while any value in mem is not zero
+        while (ite <= num_node - 2 and mem.to(torch.bool).any()):  # while any value in mem is not zero
             mem = torch.matmul(mem, adj)  # captures higher-order relationships in the graph.
             mask += mem  # Update the mask tensor with the computed memory tensor.
             # print(ite)
@@ -765,7 +765,7 @@ def multi_head_attention_func(query,                           # type: Tensor
 
     if attn_mask is not None:
         if attn_mask.dtype == torch.bool:
-            attn_output_weights.masked_fill_(attn_mask.to(torch.uint8), float('-inf'))
+            attn_output_weights.masked_fill_(attn_mask, float('-inf'))
             #print(attn_output_weights)
         else:
             attn_output_weights += attn_mask
@@ -774,7 +774,7 @@ def multi_head_attention_func(query,                           # type: Tensor
     if key_padding_mask is not None:
         attn_output_weights = attn_output_weights.view(bsz, num_heads, tgt_len, src_len)
         attn_output_weights = attn_output_weights.masked_fill(
-            key_padding_mask.unsqueeze(1).unsqueeze(2).to(torch.uint8),
+            key_padding_mask.unsqueeze(1).unsqueeze(2).to(torch.bool),
             float('-inf'),
         )
         attn_output_weights = attn_output_weights.view(bsz * num_heads, tgt_len, src_len)

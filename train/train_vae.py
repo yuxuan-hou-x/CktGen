@@ -113,7 +113,7 @@ def train(args, model, datasets, logger, optimizer, scheduler):
 
 
         if (epoch % args['eval_interval'] == 0) or (epoch == args['epochs']):
-            eval_recon(args, model, datasets, logger)
+            eval_recon.evaluate(args, model, datasets, logger)
 
 
 def main():

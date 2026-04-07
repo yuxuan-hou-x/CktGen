@@ -621,32 +621,6 @@ def get_datas_nums_more_than_k(dataset, k=10):
     return res, labels, spec_id
 
 
-def get_specification(args, datasets):
-    """Extracts continuous specification values from training dataset.
-    
-    Args:
-        args: Configuration dictionary with 'device' key.
-        datasets: Dictionary with 'train' key containing circuit graphs.
-        
-    Returns:
-        dict: Dictionary with keys 'continuous_gains', 'continuous_bws',
-             'continuous_pms', 'continuous_foms' as torch tensors.
-             
-    Note:
-        This function appears to have a bug - it references 'batch_graphs'
-        which is not defined in the parameter list.
-    """
-    continuous_gains  = torch.tensor([g['gain'] for g in datasets['train']], dtype=torch.float32).to(args['device'])
-    continuous_bws    = torch.tensor([g['bw'] for g in batch_graphs], dtype=torch.float32).to(args['device'])
-    continuous_pms    = torch.tensor([g['pm'] for g in batch_graphs], dtype=torch.float32).to(args['device'])
-    continuous_foms   = torch.tensor([g['fom'] for g in batch_graphs], dtype=torch.float32).to(args['device'])
-
-    return {
-        'continuous_gains': continuous_gains, 'continuous_bws': continuous_bws, 
-        'continuous_pms': continuous_pms, 'continuous_foms': continuous_foms
-    }
-
-
 def get_one_specifications(args, g):
     """Extracts and floors specifications from a single circuit graph.
     
