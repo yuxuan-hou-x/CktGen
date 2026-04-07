@@ -15,6 +15,7 @@ import numpy as np
 import utils.logger as utils_logger
 import utils.data as utils_data
 import utils.paths as utils_paths
+from utils.checkpoint import load_model_checkpoint
 
 from torch import optim
 from random import shuffle
@@ -68,9 +69,7 @@ def main():
     logger.info('Test data length: %d'% (len(datasets['test'])))
     logger.info('loading checkpoint from {}'.format(args['resume_pth']))
     
-    ckpt = torch.load(args['resume_pth'], map_location='cpu')
-
-    model = ckpt['model']   # 直接取出模型对象
+    model = load_model_checkpoint(args['resume_pth'], map_location='cpu')
     model = model.to(args['device'])
     # torch.save(model, 'output/cktgen_model_only.pth')
 

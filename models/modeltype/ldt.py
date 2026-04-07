@@ -11,6 +11,7 @@ import inspect
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
+from utils.checkpoint import load_model_checkpoint
 
 from diffusers import DDPMScheduler
 
@@ -137,8 +138,7 @@ class LDT(nn.Module):
         Args:
             vae_pth: Path to saved VAE checkpoint.
         """
-        vae_ckpt = torch.load(vae_pth, map_location='cpu')
-        self.vae = vae_ckpt['model'].to(self.device)
+        self.vae = load_model_checkpoint(vae_pth, map_location='cpu').to(self.device)
         
         # fraze vae parameters
         for param in self.vae.parameters():

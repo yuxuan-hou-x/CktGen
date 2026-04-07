@@ -16,6 +16,7 @@ import numpy as np
 import utils.logger as utils_logger
 import utils.data as utils_data
 import utils.paths as utils_paths
+from utils.checkpoint import load_model_checkpoint
 
 from options.training import parser
 from dataset.get_datasets import get_datasets
@@ -69,7 +70,7 @@ def main():
 
     ####--- Resume Trained Model and Evaluate ---####
     logger.info('loading checkpoint from {}'.format(args['resume_pth']))
-    model = torch.load(args['resume_pth'], map_location='cpu').to(args['device'])
+    model = load_model_checkpoint(args['resume_pth'], map_location='cpu').to(args['device'])
     
     total_params = sum(p.numel() for p in model.parameters())
     logger.info('Number of model parameters: %d'% (total_params))

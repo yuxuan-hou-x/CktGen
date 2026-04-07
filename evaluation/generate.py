@@ -17,6 +17,7 @@ import random
 from scipy import linalg
 from evaluation.tools import is_same_DAG, is_valid_Circuit, ratio_same_DAG, compute_retrieval_precision
 from utils.data import print_graph
+from utils.checkpoint import load_model_checkpoint
 
 def calculate_spec_correct_ckt(gnd_specs, predict_specs):
     """Calculates specification accuracy for generated circuits.
@@ -475,7 +476,10 @@ def evaluate(args, model, datasets, logger):
         logger.info('                  Need to load the pretrained model to evaluate')
         logger.info('###############################################################################')
     else:
-        evaluator = torch.load(args['pretrained_eval_resume_pth'], map_location='cpu').to(args['device'])
+        evaluator = load_model_checkpoint(
+            args['pretrained_eval_resume_pth'],
+            map_location='cpu'
+        ).to(args['device'])
         evaluator.eval()
 
         # evaluator_wrapper = EvaluatorForPerformancePrediction._from_pretrained(

@@ -16,6 +16,7 @@ import numpy as np
 import utils.logger as utils_logger
 import utils.data as utils_data
 import utils.paths as utils_paths
+from utils.checkpoint import load_model_checkpoint
 
 from options.training import parser
 from dataset.get_datasets import get_datasets
@@ -80,7 +81,7 @@ def main():
         model = get_model(args)
         logger.info('Training data length: %d, Test data length: %d'% (len(datasets['train']), len(datasets['test'])))
         logger.info('loading checkpoint from {}'.format(args['resume_pth']))
-        model = torch.load(args['resume_pth'], map_location='cpu')
+        model = load_model_checkpoint(args['resume_pth'], map_location='cpu')
     
     model = model.to(args['device'])
     

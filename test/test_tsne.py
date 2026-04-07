@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 import utils.logger as utils_logger
 import utils.data as utils_data
 import utils.paths as utils_paths
+from utils.checkpoint import load_model_checkpoint
 
 from pathlib import Path
 from sklearn.manifold import TSNE
@@ -242,7 +243,7 @@ def main():
 
     if 'resume_pth' in args:
         logger.info('Loading model from {}'.format(args['resume_pth']))
-        model = torch.load(args['resume_pth'], map_location='cpu').to(args['device'])
+        model = load_model_checkpoint(args['resume_pth'], map_location='cpu').to(args['device'])
         model.eval()
 
         saved_path = tsne_on_datasets(args, model, datasets, str(output_path))
