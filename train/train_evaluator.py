@@ -10,7 +10,6 @@ import os
 import json
 import torch
 import random
-import time
 import numpy as np
 
 import utils.logger as utils_logger
@@ -22,85 +21,9 @@ from random import shuffle
 from options.training import parser
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from dataset.get_datasets import get_datasets
-from scipy.stats import pearsonr
 from models.get_model import get_model
 
-import evaluation.retrieval as eval_retri
-
-def RMSE(pred, gnd):
-    """Computes Root Mean Square Error between predictions and ground truth.
-    
-    Args:
-        pred: Predicted values (numpy array or tensor).
-        gnd: Ground truth values (numpy array or tensor).
-        
-    Returns:
-        float: RMSE value.
-    """
-    # return torch.sqrt(torch.mean((pred - gnd) ** 2))
-    return np.sqrt(np.mean((pred - gnd) ** 2))
-
-@torch.no_grad()
-def eval_pred(args, model, datasets, logger):
-    """Evaluates performance predictor on test set.
-    
-    Computes circuit embeddings, predicts performance metrics (gain, bandwidth, 
-    phase margin, FoM), and calculates RMSE and Pearson correlation for each metric.
-    
-    Args:
-        args: Configuration dictionary with device and normalization parameters.
-        model: Evaluator model with circuit encoder and performance predictor.
-        datasets: Dictionary containing 'test' dataset.
-        logger: Logger for recording evaluation metrics.
-        
-    Notes:
-        - Uses model's training mean/std for denormalization
-        - Evaluates on gain, bandwidth (bw), phase margin (pm), and figure-of-merit (fom)
-        - Reports both RMSE and Pearson correlation (P-R) for each metric
-    """
-    model.eval()
-
-    args['means'] = model.mean_train
-    args['stds'] = model.std_train
-
-
-    batch = utils_data.transforms(args, datasets['test'])
-    ckt_embs = model.get_ckt_embeddings(batch)
-    gnds = utils_data.transform_continues_specification(args, datasets['test'])
-
-    preds = model.predict_standard(ckt_embs)
-
-    pred_gain = preds['gain'].cpu().numpy()
-    pred_bw = preds['bw'].cpu().numpy()
-    pred_pm = preds['pm'].cpu().numpy()
-    pred_fom = preds['fom'].cpu().numpy()
-
-    gnd_gain = gnds['cont_gains'].cpu().numpy()
-    gnd_bw = gnds['cont_gains'].cpu().numpy()
-    gnd_pm = gnds['cont_gains'].cpu().numpy()
-    gnd_fom = gnds['cont_gains'].cpu().numpy()
-
-    rmse_gain  = RMSE(pred_gain, gnd_gain)
-    rmse_bw    = RMSE(pred_bw, gnd_bw)
-    rmse_pm    = RMSE(pred_pm, gnd_pm)
-    rmse_fom   = RMSE(pred_fom, gnd_fom)
-
-    r_gain, _   = pearsonr(pred_gain, gnd_gain)
-    r_bw, _     = pearsonr(pred_bw, gnd_bw)
-    r_pm, _     = pearsonr(pred_pm, gnd_pm)
-    r_fom, _    = pearsonr(pred_fom, gnd_fom)
-    
-
-    logger.info('RMSE Gain: %0.4f, P-R Gain: %0.4f, RMSE BW: %0.4f, P-R BW: %0.4f, RMSE PM: %0.4f, P-R PM: %0.4f, RMSE FoM: %0.4f, P-R FoM: %0.4f'% (
-        rmse_gain,
-        rmse_bw,
-        rmse_pm,
-        rmse_fom,
-        r_gain,
-        r_bw,
-        r_pm,
-        r_fom,
-    ))
+import evaluation.prediction as eval_prediction
 
 
 def train(args, model, datasets, logger, optimizer, scheduler):
@@ -137,10 +60,8 @@ def train(args, model, datasets, logger, optimizer, scheduler):
 
     for epoch in range(1, args['epochs']+1):
         shuffle(datasets['train'])
-        print_iter = 1
         batch_graphs = []
         train_loss = 0.0
-        time_start = time.time()
         
         avg_train_loss, avg_align_loss, avg_nce_loss, avg_pred_loss  = 0.0, 0.0, 0.0, 0.0
         
@@ -150,7 +71,6 @@ def train(args, model, datasets, logger, optimizer, scheduler):
 
             if len(batch_graphs) == args['batch_size'] or i == len(datasets['train']) - 1:
                 optimizer.zero_grad()
-                bsz = len(batch_graphs)
                 
                 _batch_graphs = utils_data.collate_fn(batch_graphs)
                 batch = utils_data.transforms(args, _batch_graphs)
@@ -170,7 +90,6 @@ def train(args, model, datasets, logger, optimizer, scheduler):
 
                 optimizer.step()
                 batch_graphs = []
-                print_iter = print_iter + 1
             else:
                 continue
 
@@ -183,14 +102,14 @@ def train(args, model, datasets, logger, optimizer, scheduler):
                     avg_pred_loss / len(datasets['train'])
                 ))
 
-        scheduler.step(mixed_loss)
+        scheduler.step(train_loss)
 
         if (epoch % args['save_interval'] == 0) or (epoch == args['save_interval']):
             checkpoint_path = utils_paths.get_checkpoint_path(args['out_dir'], args['exp_name'], epoch)
             torch.save(model, checkpoint_path)
 
         if (epoch % args['eval_interval'] == 0) or (epoch == args['epochs']):
-            eval_retri.evaluate(args, model, datasets, logger)
+            eval_prediction.evaluate(args, model, datasets, logger)
 
 def main():
     """Main entry point for training evaluator models.

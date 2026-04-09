@@ -16,10 +16,9 @@ from tqdm import tqdm
 
 def compute_retrieval_precision(spec_latents, ckt_latents, gnds):
     assert len(ckt_latents) == len(spec_latents)
-    batch_size, _ = spec_latents.shape
     # nomalize
-    ckt_latents = torch.nn.functional.normalize(ckt_latents, dim=-1).squeeze()
-    spec_latents = torch.nn.functional.normalize(spec_latents, dim=-1).squeeze()
+    ckt_latents = torch.nn.functional.normalize(ckt_latents, dim=-1)
+    spec_latents = torch.nn.functional.normalize(spec_latents, dim=-1)
 
     sim_matrix = ckt_latents @ spec_latents.T    # (b, d) x (d, b) -> (b, b)
     sim_scores, indices = torch.sort(sim_matrix, dim=1, descending=True)

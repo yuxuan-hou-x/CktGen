@@ -170,10 +170,10 @@ class EVALUATOR(nn.Module):
         Returns:
             Dictionary with logits/normalized predictions for all specs.
         """
-        pred_gain = self.fc_gain(ckt_embs).squeeze()
-        pred_bw   = self.fc_bw(ckt_embs).squeeze()
-        pred_pm   = self.fc_pm(ckt_embs).squeeze()
-        pred_fom   = self.fc_fom(ckt_embs).squeeze()
+        pred_gain = self.fc_gain(ckt_embs)
+        pred_bw   = self.fc_bw(ckt_embs)
+        pred_pm   = self.fc_pm(ckt_embs)
+        pred_fom   = self.fc_fom(ckt_embs).squeeze(-1)
 
         return {'gain': pred_gain, 'bw': pred_bw, 'pm': pred_pm, 'fom': pred_fom}
 

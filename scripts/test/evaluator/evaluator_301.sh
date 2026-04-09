@@ -2,7 +2,7 @@
 # Change to project root (cktgen/)
 cd ../../..
 
-python -m test.test_rand_gen \
+python -m test.test_evaluator \
 --data_name ckt_bench_301 \
 --data_fold_name CktBench301 \
 --modelname evaluator_digin_nce_gde_pred \
