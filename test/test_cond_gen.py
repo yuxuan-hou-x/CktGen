@@ -10,18 +10,14 @@ import os
 import json
 import torch
 import random
-import time
 import numpy as np
 
 import utils.logger as utils_logger
-import utils.data as utils_data
 import utils.paths as utils_paths
 from utils.checkpoint import load_model_checkpoint
 
 from options.training import parser
 from dataset.get_datasets import get_datasets
-from models.get_model import get_model
-import evaluation.auto_design as eval_auto_design
 import evaluation.generate as eval_cond_gen
 
 def main():
@@ -64,24 +60,9 @@ def main():
     ####--- Dataset & Network ---####
     datasets = get_datasets(args)
     
-    # Load model from Hugging Face or local checkpoint
-    if 'hf_model_id' in args and args['hf_model_id']:
-        # Load from Hugging Face Hub
-        logger.info('Loading model from Hugging Face Hub: {}'.format(args['hf_model_id']))
-        wrapper = CktGenForConditionalGeneration.from_pretrained(args['hf_model_id'])
-        model = wrapper.model
-        # Update args with config from HF model
-        config = wrapper.config
-        for key, value in config.items():
-            if key not in args:  # Don't override existing args
-                args[key] = value
-        logger.info('Model loaded from Hugging Face Hub successfully')
-    else:
-        # Load from local checkpoint (original behavior)
-        model = get_model(args)
-        logger.info('Training data length: %d, Test data length: %d'% (len(datasets['train']), len(datasets['test'])))
-        logger.info('loading checkpoint from {}'.format(args['resume_pth']))
-        model = load_model_checkpoint(args['resume_pth'], map_location='cpu')
+    logger.info('Training data length: %d, Test data length: %d'% (len(datasets['train']), len(datasets['test'])))
+    logger.info('loading checkpoint from {}'.format(args['resume_pth']))
+    model = load_model_checkpoint(args['resume_pth'], map_location='cpu')
     
     model = model.to(args['device'])
     

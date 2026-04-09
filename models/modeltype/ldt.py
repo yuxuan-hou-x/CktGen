@@ -131,6 +131,13 @@ class LDT(nn.Module):
         self.num_inference_timesteps = num_inference_timesteps
         self.eta = eta
         self.guidance_uncod_prob = guidance_uncod_prob
+
+    def train(self, mode=True):
+        super().train(mode)
+        if self.vae is not None:
+            # Keep the pretrained VAE deterministic while training LDT.
+            self.vae.eval()
+        return self
         
     def load_vae(self, vae_pth):
         """Load pretrained VAE encoder and freeze its parameters.
@@ -143,6 +150,7 @@ class LDT(nn.Module):
         # fraze vae parameters
         for param in self.vae.parameters():
             param.requires_grad = False
+        self.vae.eval()
         # vae = torch.load(args['vae_pth'], map_location='cpu').to(args['device'])
 
     def compute_loss(self, batch):

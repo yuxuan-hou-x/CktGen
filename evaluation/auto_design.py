@@ -278,7 +278,7 @@ def auto_design(args, model, surrogate, datasets, logger):
         
     Side Effects:
         - Logs optimization progress and results
-        - Saves results to {out_dir}/{modeltype}.pkl with keys:
+        - Saves results to {out_dir}/{exp_name|modelname|modeltype}.pkl with keys:
           'acc', 'fom', 'best_acc', 'best_fom'
     """
     # --------------------------------------------------
@@ -327,7 +327,7 @@ def auto_design(args, model, surrogate, datasets, logger):
         ####--- eval best ---####
         pred = surrogate_model(args, surrogate, [objective.best_ckt])
         is_correct = is_specification_correct(cons, pred['gain'], pred['bw'], pred['pm'])
-        is_valid = is_valid_Circuit(objective.best_ckt, start_symbol=(args['archiname']=='pace'))
+        is_valid = is_valid_Circuit(objective.best_ckt)
 
         if is_correct and is_valid:
             total_best_correct_valid_nums += 1
@@ -354,7 +354,8 @@ def auto_design(args, model, surrogate, datasets, logger):
     logger.info('Correct and Valid Design Ratrio: %.06f, Avg Best FoM: %.06f'%(total_best_correct_valid_nums / len(constraints), total_best_fom / len(constraints)))
 
     from pathlib import Path
-    filename = Path(args['out_dir']) / f"{args['modeltype']}.pkl"
+    save_name = args.get('exp_name') or args.get('modelname') or args['modeltype']
+    filename = Path(args['out_dir']) / f"{save_name}.pkl"
     save = {
         'acc': total_avg_search_acc, 
         'fom': total_avg_search_fom,

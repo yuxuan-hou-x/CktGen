@@ -207,6 +207,23 @@ class CVAEGAN(nn.Module):
         self.spec_project = nn.Linear(latent_dim, hidden_dim)
 
 
+    def _condition_batch_latents(self, batch):
+        """Returns a shallow batch copy with spec-conditioned circuit latents.
+
+        This avoids mutating the caller's batch in-place, which would otherwise
+        keep accumulating specification embeddings across repeated forward calls.
+        """
+        spec_embs = self.spec_embedder(batch['gains'], batch['bws'], batch['pms'])
+        ckt_latents = batch['ckt_latents']
+
+        if ckt_latents.dim() == 3 and spec_embs.dim() == 2:
+            spec_embs = spec_embs.unsqueeze(0)
+
+        conditioned_batch = dict(batch)
+        conditioned_batch['ckt_latents'] = ckt_latents + spec_embs
+        return conditioned_batch
+
+
     def forward(self, args, batch):
         """Generate circuits from latents conditioned on specifications.
         
@@ -217,11 +234,8 @@ class CVAEGAN(nn.Module):
         Returns:
             Decoded circuit outputs.
         """
-        spec_embs = self.spec_embedder(batch['gains'], batch['bws'], batch['pms'])
-        ckt_latents = batch['ckt_latents']
-
-        batch['ckt_latents'] = ckt_latents + spec_embs
-        return self.archi.decode(args, batch)
+        conditioned_batch = self._condition_batch_latents(batch)
+        return self.archi.decode(args, conditioned_batch)
 
 
     def sample_from_distribution(self, dist, sample_mean=False):
@@ -256,11 +270,14 @@ class CVAEGAN(nn.Module):
             Sampled circuit latents (and optionally distribution parameters).
         """
         batch.update(self.archi.encode(batch))
-        ckt_latents = self.sample_from_distribution(batch['ckt_dists'], sample_mean=sample_mean).squeeze()
+        ckt_latents = self.sample_from_distribution(
+            batch['ckt_dists'],
+            sample_mean=sample_mean
+        ).squeeze(0)
         if return_dists:
-            return (ckt_latents.squeeze(), batch['ckt_dists'])
+            return (ckt_latents, batch['ckt_dists'])
         else:
-            return ckt_latents.squeeze()
+            return ckt_latents
 
 
     def compute_cvae_loss(self, batch):
@@ -273,11 +290,8 @@ class CVAEGAN(nn.Module):
             Tuple of (total_loss, loss_dict).
         """
         mu, logvar = batch['ckt_dists']
-        ckt_latents = batch['ckt_latents']
-        spec_embs = self.spec_embedder(batch['gains'], batch['bws'], batch['pms'])
-
-        batch['ckt_latents'] = ckt_latents + spec_embs
-        losses = self.archi.compute_loss(batch)
+        conditioned_batch = self._condition_batch_latents(batch)
+        losses = self.archi.compute_loss(conditioned_batch)
         losses['kl'] = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
 
         mixed_loss = 0
@@ -300,4 +314,3 @@ class CVAEGAN(nn.Module):
         logits_valid = self.discriminator(batch)
         loss =  self.adver_loss_fn(logits_valid, label)
         return loss
-

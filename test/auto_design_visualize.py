@@ -161,10 +161,6 @@ for dataset_config in datasets_config:
     ax1.set_ylabel('Specification accuracy (%)', fontsize=18)
     ax1.set_ylim(0, 110)
     
-    # Add accuracy values as text labels on top of bars (in percentage)
-    for i, v in enumerate(avg_acc_percent):
-        ax1.text(i, v+3, f'{v:.2f}%', ha='center', fontsize=18)
-    
     # Right y-axis: Average FoM as line plot with colored scatter points
     ax2 = ax1.twinx()
     ax2.plot(model_names, avg_fom, color='gray', zorder=1, linewidth=2)  # Gray connecting line
@@ -173,6 +169,20 @@ for dataset_config in datasets_config:
     for i, (x, y) in enumerate(zip(model_names, avg_fom)):
         ax2.scatter(x, y, s=160, color=deep_colors[i], zorder=2, label=f'{model_names[i]} FoM', edgecolor='black')
     ax2.set_ylabel('Average FoM', fontsize=18)
+
+    # Keep bar labels centered and place them higher to avoid the FoM markers.
+    for rect, v in zip(bar, avg_acc_percent):
+        x = rect.get_x() + rect.get_width() * 0.5
+        y = v + 7.5
+        ax1.text(
+            x,
+            y,
+            f'{v:.2f}%',
+            ha='center',
+            va='bottom',
+            fontsize=18,
+            zorder=5,
+        )
     
     indicator_legend = [
         Patch(facecolor='gray', edgecolor='black', label='Specification accuracy (bar)'),

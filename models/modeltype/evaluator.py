@@ -156,7 +156,7 @@ class EVALUATOR(nn.Module):
         _, pred_gain = torch.topk(logits_gain, k=topk, dim=-1)
         _, pred_bw   = torch.topk(logits_bw, k=topk, dim=-1)
         _, pred_pm   = torch.topk(logits_pm, k=topk, dim=-1)
-        pred_fom   = self.fc_fom(ckt_embs) * self.fom_train_mean + self.fom_train_std
+        pred_fom   = self.fc_fom(ckt_embs) * self.fom_train_std + self.fom_train_mean
 
         return {'gain': pred_gain, 'bw': pred_bw, 'pm': pred_pm, 'fom': pred_fom}
 

@@ -69,8 +69,8 @@ def train(args, model, datasets, logger, optimizer, scheduler):
         train_discriminator_loss = 0.0
         train_cvae_loss = 0.0
 
-        (avg_recon_loss, avg_kl_loss, avg_type_loss, avg_path_loss, avg_size_loss, avg_edge_loss, 
-        avg_adver_loss, avg_real_loss, avg_fake_loss) = (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+        (avg_recon_loss, avg_kl_loss, avg_type_loss, avg_path_loss, avg_size_loss, avg_edge_loss,
+        avg_adver_loss) = (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
         
         for i, g in enumerate(datasets['train']):
             model.train()
@@ -102,7 +102,7 @@ def train(args, model, datasets, logger, optimizer, scheduler):
 
                 avg_recon_loss  += losses['recon'].item()
                 avg_type_loss   += losses['types'].item()
-                avg_path_loss   += losses['edges'].item()
+                avg_path_loss   += losses['paths'].item()
                 avg_size_loss   += losses['sizes'].item()
                 avg_edge_loss   += losses['edges'].item()
                 avg_kl_loss     += losses['kl'].item()
@@ -125,18 +125,19 @@ def train(args, model, datasets, logger, optimizer, scheduler):
                 loss_discriminate_gnd = model.compute_discriminator_loss(batch, real_labels)
 
                 ####--- reconstruct discriminate ---####
-                gen_ckts = model(args, batch)
+                with torch.no_grad():
+                    gen_ckts = model(args, batch)
                 batch_gen = utils_data.transform_cktarchi(args, gen_ckts)
                 batch_gen.update(utils_data.transform_specification(args, _batch_graphs))
                 batch_gen = {
                     key: val.to(args['device']) 
                     if torch.is_tensor(val) else val 
-                    for key, val in batch.items()
+                    for key, val in batch_gen.items()
                 }
                 loss_discriminate_gen = model.compute_discriminator_loss(batch_gen, fake_labels)
                 
                 adver_loss = (loss_discriminate_gen + loss_discriminate_gnd) / 2
-                avg_adver_loss += adver_loss
+                avg_adver_loss += adver_loss.item()
                 
                 adver_loss.backward()
                 optimizer['discriminator'].step()
@@ -151,7 +152,6 @@ def train(args, model, datasets, logger, optimizer, scheduler):
         epoch_time = time_end - time_start
         total_training_time += epoch_time
 
-        # avg_train_loss = (avg_recon_loss + avg_adver_loss + avg_real_loss + avg_fake_loss) 
         logger.info('Epoch: %d, kl: %0.4f, recon: %0.4f, types: %0.4f, paths: %0.4f, sizes: %0.4f, edges: %0.4f, adver: %0.4f, Time: %.2f s'% (
             epoch, 
             avg_kl_loss / len(datasets['train']), 

@@ -6,7 +6,6 @@ Licensed under the MIT License.
 """
 
 
-import os
 import time
 import torch
 import numpy as np
@@ -15,9 +14,9 @@ from tqdm import tqdm
 import utils.data as utils_data
 import random
 from scipy import linalg
-from evaluation.tools import is_same_DAG, is_valid_Circuit, ratio_same_DAG, compute_retrieval_precision
-from utils.data import print_graph
+from evaluation.tools import is_valid_Circuit, compute_retrieval_precision
 from utils.checkpoint import load_model_checkpoint
+from utils.visualize import plot_graph
 
 def calculate_spec_correct_ckt(gnd_specs, predict_specs):
     """Calculates specification accuracy for generated circuits.
@@ -399,26 +398,11 @@ def evaluate_condition_generate(args, evaluator, datasets, logger, model):
 
 @torch.no_grad()
 def generate_circuits(args, model, datasets, logger):
-    """Generates circuits from specifications and logs/visualizes results.
-    
-    Generates circuits for each specification cluster, checks validity,
-    and optionally plots the first 4 circuits.
-    
-    Args:
-        args: Configuration dictionary with 'modelname', 'archiname'.
-        model: Generative model.
-        datasets: Dictionary with 'test' dataset.
-        logger: Logger instance.
-        
-    Side Effects:
-        - Logs circuit details and validity status
-        - May create circuit visualization plots (first 4 circuits)
-        
-    Notes:
-        Contains undefined variable 'num_valid_ckts' - appears to be incomplete code.
-    """
+    """Generates circuits from specifications and logs/visualizes results."""
     sample_rounds = 120
     specs_clustered_ckts = utils_data.get_specification_domain(datasets['test'])
+    valid_ckts = []
+    num_valid_ckts = 0
 
     for rnd in tqdm(range(sample_rounds), desc="Generating circuits", unit="sample"):
         ckts = []
@@ -430,23 +414,22 @@ def generate_circuits(args, model, datasets, logger):
         _ckts = utils_data.collate_fn(ckts)
         batch = utils_data.transforms(args, _ckts)
         
-        gen_ckts = model(args, batch) # generate according to the spec
+        gen_ckts = model(args, batch)
         
-        for _, g in enumerate(gen_ckts):
-
-            logger.info('#########################' + args['modelname'] + '_' + str(i) + '#########################')
+        for idx, g in enumerate(gen_ckts):
+            logger.info('#########################' + args['modelname'] + '_' + str(idx) + '#########################')
             logger.info(g)
-            for i in range(g.vcount()):
-                logger.info(g.vs[i].attributes())
-                print(g.vs[i].attributes())
+            for vi in range(g.vcount()):
+                logger.info(g.vs[vi].attributes())
             if is_valid_Circuit(g, start_symbol=(args['archiname']=='pace')):
-
                 num_valid_ckts += 1
                 valid_ckts.append(g)
 
-        for i in range(4):
+        for i, g in enumerate(gen_ckts[:4]):
             plot_graph(args, g, args['modelname'] + '_' + str(i), backbone=True, pdf=False)
-    
+
+    return {'num_valid_ckts': num_valid_ckts, 'valid_ckts': valid_ckts}
+
 
 def evaluate(args, model, datasets, logger):
     """Main evaluation entry point for conditional circuit generation.
