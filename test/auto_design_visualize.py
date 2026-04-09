@@ -12,11 +12,9 @@ compare accuracy and Figure of Merit (FoM) metrics.
 
 import matplotlib.pyplot as plt
 import pickle
-import os
 import argparse
 from pathlib import Path
 from matplotlib import font_manager
-import seaborn as sns
 import pandas as pd
 import numpy as np
 from matplotlib.patches import Patch
@@ -132,8 +130,6 @@ for dataset_config in datasets_config:
         'CktGen': cktgen_data,
     }
     
-    title_name = dataset_config['title']
-    
     #################################################################################
     #                                   Bar Chart
     #################################################################################
@@ -151,7 +147,7 @@ for dataset_config in datasets_config:
         avg_fom.append(np.mean(foms))
     
     # Create dual-axis plot
-    fig, ax1 = plt.subplots(figsize=(9,6))
+    _, ax1 = plt.subplots(figsize=(9,6))
     
     # Convert accuracy to percentage
     avg_acc_percent = [acc * 100 for acc in avg_acc]
@@ -190,7 +186,7 @@ for dataset_config in datasets_config:
                linewidth=0, markersize=13, label='Average FoM (dot)')
     ]
     
-    legend2 = ax1.legend(handles=indicator_legend, loc='upper left', fontsize=18)
+    ax1.legend(handles=indicator_legend, loc='upper left', fontsize=18)
     
     # Finalize and save the plot
     # plt.title(title_name, fontsize=18)
@@ -212,7 +208,7 @@ for dataset_config in datasets_config:
             data.append({'Model': model, 'Accuracy': a * 100, 'FoM': f})
     df = pd.DataFrame(data)
     
-    fig, ax = plt.subplots(figsize=(8.2, 6))
+    _, ax = plt.subplots(figsize=(8.2, 6))
     for i, model in enumerate(df['Model'].unique()):
         d = df[df['Model'] == model]
         ax.scatter(d['Accuracy'], d['FoM'], label=model, alpha=0.6, s=60, color=deep_colors[i])

@@ -10,11 +10,9 @@ import os
 import json
 import torch
 import random
-import time
 import numpy as np
 
 import utils.logger as utils_logger
-import utils.data as utils_data
 import utils.paths as utils_paths
 from utils.checkpoint import load_model_checkpoint
 
@@ -23,7 +21,6 @@ from dataset.get_datasets import get_datasets
 from models.get_model import get_model
 
 import evaluation.auto_design as eval_auto_design
-import evaluation.generate as eval_cond_gen
 
 def main():
     """Main entry point for training CktGen models.

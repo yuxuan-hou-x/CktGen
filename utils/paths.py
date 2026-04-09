@@ -9,8 +9,6 @@ and reliable file access across different execution contexts (running
 from project root, from subdirectories, or in different environments).
 """
 
-
-import os
 from pathlib import Path
 
 
@@ -79,57 +77,6 @@ def get_data_dir(data_fold_name=None):
         return project_root / 'dataset'
 
 
-def get_output_dir(exp_name=None):
-    """Get the absolute path to the output directory.
-    
-    Args:
-        exp_name: Optional experiment name. If provided, returns path to that
-                 specific experiment's output folder.
-    
-    Returns:
-        Path: Absolute path to output directory.
-        
-    Example:
-        >>> output_dir = get_output_dir('my_experiment')
-        >>> print(output_dir)
-        /Users/username/Desktop/projects/CktGen-Exp-Cleaned/output/my_experiment
-    """
-    project_root = get_project_root()
-    output_base = project_root / 'output'
-    
-    if exp_name:
-        return output_base / exp_name
-    else:
-        return output_base
-
-
-def get_checkpoint_path(exp_name, model_name, epoch=None):
-    """Get the absolute path to a model checkpoint file.
-    
-    Args:
-        exp_name: Experiment name (subfolder in output/).
-        model_name: Model name prefix (e.g., 'cktgen_cktarchi').
-        epoch: Optional epoch number. If provided, constructs checkpoint filename
-               like '{model_name}_checkpoint{epoch}.pth'. If None, returns the
-               directory containing checkpoints.
-    
-    Returns:
-        Path: Absolute path to checkpoint file or directory.
-        
-    Example:
-        >>> ckpt = get_checkpoint_path('exp1', 'cktgen_cktarchi', 600)
-        >>> print(ckpt)
-        .../output/exp1/cktgen_cktarchi_checkpoint600.pth
-    """
-    exp_dir = get_output_dir(exp_name)
-    
-    if epoch is not None:
-        checkpoint_file = f'{model_name}_checkpoint{epoch}.pth'
-        return exp_dir / checkpoint_file
-    else:
-        return exp_dir
-
-
 def resolve_path(path_str, base_dir=None):
     """Resolve a path string to an absolute Path object.
     
@@ -167,45 +114,6 @@ def resolve_path(path_str, base_dir=None):
         base_dir = Path(base_dir).resolve()
     
     return (base_dir / path).resolve()
-
-
-def ensure_dir(path):
-    """Ensure a directory exists, creating it if necessary.
-    
-    Args:
-        path: Path to directory (str or Path).
-    
-    Returns:
-        Path: Absolute path to the directory.
-        
-    Example:
-        >>> output_dir = ensure_dir('./output/my_exp')
-        >>> # Directory is now created if it didn't exist
-    """
-    path = Path(path)
-    path.mkdir(parents=True, exist_ok=True)
-    return path.resolve()
-
-
-def get_dataset_file(data_fold_name, data_name, data_type='igraph'):
-    """Get the absolute path to a dataset file.
-    
-    Args:
-        data_fold_name: Dataset folder name (e.g., 'CktBench101').
-        data_name: Dataset base name (e.g., 'ckt_bench_101').
-        data_type: Dataset file type (default: 'igraph').
-    
-    Returns:
-        Path: Absolute path to dataset file.
-        
-    Example:
-        >>> dataset_file = get_dataset_file('CktBench101', 'ckt_bench_101')
-        >>> print(dataset_file)
-        .../dataset/OCB/CktBench101/ckt_bench_101_igraph.pkl
-    """
-    data_dir = get_data_dir(data_fold_name)
-    filename = f'{data_name}_{data_type}.pkl'
-    return data_dir / filename
 
 
 def get_performance_file(data_fold_name, benchmark='101'):

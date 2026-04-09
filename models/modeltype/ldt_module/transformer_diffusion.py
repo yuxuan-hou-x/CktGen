@@ -9,7 +9,7 @@ Licensed under the MIT License.
 import torch
 from torch import Tensor, nn
 import torch.nn.functional as F
-from typing import List, Optional
+from typing import Optional
 import copy
 
 
@@ -229,112 +229,4 @@ class SkipTransformerEncoder(nn.Module):
 
         if self.norm is not None:
             x = self.norm(x)
-        return x
-
-
-class SkipTransformerDecoder(nn.Module):
-    """Transformer decoder with skip connections (U-Net style).
-    
-    Similar to SkipTransformerEncoder but for decoder architecture with
-    cross-attention to encoder memory.
-    
-    Args:
-        decoder_layer: Decoder layer template to clone.
-        num_layers: Total number of layers (must be odd).
-        norm: Optional normalization layer.
-    """
-    def __init__(self, decoder_layer, num_layers, norm=None):
-        super().__init__()
-        self.d_model = decoder_layer.d_model
-
-        self.num_layers = num_layers
-        self.norm = norm
-
-        assert num_layers % 2 == 1
-
-        num_block = (num_layers - 1) // 2
-        self.input_blocks = _get_clones(decoder_layer, num_block)
-        self.middle_block = _get_clone(decoder_layer)
-        self.output_blocks = _get_clones(decoder_layer, num_block)
-        self.linear_blocks = _get_clones(
-            nn.Linear(2 * self.d_model, self.d_model), num_block
-        )
-
-        self._reset_parameters()
-
-    def _reset_parameters(self):
-        for p in self.parameters():
-            if p.dim() > 1:
-                nn.init.xavier_uniform_(p)
-
-    def forward(
-        self,
-        tgt,
-        memory,
-        tgt_mask: Optional[Tensor] = None,
-        memory_mask: Optional[Tensor] = None,
-        tgt_key_padding_mask: Optional[Tensor] = None,
-        memory_key_padding_mask: Optional[Tensor] = None,
-        pos: Optional[Tensor] = None,
-        query_pos: Optional[Tensor] = None,
-    ):
-        """Forward pass with skip connections and cross-attention.
-        
-        Args:
-            tgt: Target sequence.
-            memory: Encoder output to attend to.
-            tgt_mask: Target attention mask.
-            memory_mask: Memory attention mask.
-            tgt_key_padding_mask: Target padding mask.
-            memory_key_padding_mask: Memory padding mask.
-            pos: Positional embeddings for memory.
-            query_pos: Positional embeddings for target.
-            
-        Returns:
-            Decoded tensor with skip connections applied.
-        """
-        x = tgt
-
-        xs = []
-        for module in self.input_blocks:
-            x = module(
-                x,
-                memory,
-                tgt_mask=tgt_mask,
-                memory_mask=memory_mask,
-                tgt_key_padding_mask=tgt_key_padding_mask,
-                memory_key_padding_mask=memory_key_padding_mask,
-                pos=pos,
-                query_pos=query_pos,
-            )
-            xs.append(x)
-
-        x = self.middle_block(
-            x,
-            memory,
-            tgt_mask=tgt_mask,
-            memory_mask=memory_mask,
-            tgt_key_padding_mask=tgt_key_padding_mask,
-            memory_key_padding_mask=memory_key_padding_mask,
-            pos=pos,
-            query_pos=query_pos,
-        )
-
-        for module, linear in zip(self.output_blocks, self.linear_blocks):
-            x = torch.cat([x, xs.pop()], dim=-1)
-            x = linear(x)
-            x = module(
-                x,
-                memory,
-                tgt_mask=tgt_mask,
-                memory_mask=memory_mask,
-                tgt_key_padding_mask=tgt_key_padding_mask,
-                memory_key_padding_mask=memory_key_padding_mask,
-                pos=pos,
-                query_pos=query_pos,
-            )
-
-        if self.norm is not None:
-            x = self.norm(x)
-
         return x

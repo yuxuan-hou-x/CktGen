@@ -13,14 +13,10 @@ import random
 import numpy as np
 
 import utils.logger as utils_logger
-import utils.data as utils_data
 import utils.paths as utils_paths
 from utils.checkpoint import load_model_checkpoint
 
-from torch import optim
-from random import shuffle
 from options.training import parser
-from torch.optim.lr_scheduler import ReduceLROnPlateau
 from dataset.get_datasets import get_datasets
 from models.get_model import get_model
 

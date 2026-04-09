@@ -5,9 +5,6 @@ Copyright 2025 CktGen Authors.
 Licensed under the MIT License.
 """
 
-
-import argparse
-
 def add_dataset_options(parser):
     """
     Add dataset configuration options.

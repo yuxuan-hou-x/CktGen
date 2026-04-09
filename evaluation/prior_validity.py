@@ -6,12 +6,10 @@ Licensed under the MIT License.
 """
 
 
-import os
 import time
 import torch
-import utils.data as utils_data
 from tqdm import tqdm
-from evaluation.tools import is_same_DAG, is_valid_DAG, is_valid_Circuit, ratio_same_DAG, extract_latents
+from evaluation.tools import is_valid_DAG, is_valid_Circuit, ratio_same_DAG, extract_latents
 
 @torch.no_grad()
 def evaluate(args, model, datasets, logger, scale_to_train_range=False):

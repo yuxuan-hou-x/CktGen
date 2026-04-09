@@ -6,10 +6,8 @@ Licensed under the MIT License.
 """
 
 
-import os
 import igraph
 import torch
-import numpy as np
 import math
 import utils.data as utils_data
 from torch.nn import functional as F
@@ -132,23 +130,6 @@ def add_topology_position(g):
     num_nodes = len(topo_oreder)
     g.vs['topo'] = topo_oreder
     
-
-def print_graph(g):
-    """Prints graph structure and all vertex attributes.
-    
-    Args:
-        g: igraph.Graph object to print.
-        
-    Side Effects:
-        Prints graph summary and each vertex's attributes to stdout.
-    """
-    # logger.info(g)
-    print(g)
-
-    for i in range(g.vcount()):
-        # logger.info(g.vs[i].attributes())
-        print(g.vs[i].attributes())
-
 
 #####################################################################################
 #                           prepare the data for the model                          #
@@ -401,7 +382,6 @@ def clean_datasets(args, train_data, test_data):
     cond_mp = {'gain': 1, 'bw': 1000, 'pm': 1000000}
 
     train_mp = count_conditions(train_data)
-    test_mp = count_conditions(test_data)
 
     for i, g in enumerate(train_data):
 
@@ -448,41 +428,6 @@ def clean_datasets(args, train_data, test_data):
         test_data_cleaned.append(g_new)
 
     return train_data_cleaned, test_data_cleaned
-
-
-def get_specifications(dataset):
-    """Extracts unique specification combinations from a dataset.
-    
-    Args:
-        dataset: List of circuit graphs with 'gain', 'bw', 'pm' attributes.
-        
-    Returns:
-        list: List of unique [gain, bw, pm] specification tuples.
-        
-    Notes:
-        Specifications are floored to integers before deduplication.
-        Uses encoding: gain*1 + bw*1000 + pm*1000000 for uniqueness check.
-    """
-    spec_keys = {'gain', 'bw', 'pm'}
-    spec_mp = {'gain': 1, 'bw': 1000, 'pm': 1000000}
-
-    spec_dict = {}
-    spec_idx = {}
-    specs = []
-
-    for i, g in enumerate(dataset):
-        mp_key = 0
-        for key in spec_keys:
-            trunc_spec = floor_to_decimal(g[key], decimals=0)
-            mp_key += trunc_spec * spec_mp[key]
-
-        if str(mp_key) in spec_dict:
-            continue
-        else:
-            spec_dict[str(mp_key)] = True
-            specs.append([g['gain'], g['bw'], g['pm']])
-            
-    return specs
 
 
 def get_specification_domain(dataset):
@@ -554,92 +499,6 @@ def get_condition_mappings(gain, bw, pm):
     mappings += floor_to_decimal(bw, decimals=0) * 1000
     mappings += floor_to_decimal(pm, decimals=0) * 1000000
     return mappings
-
-
-def get_datas_nums_more_than_k(dataset, k=10):
-    """Filters circuits to keep only those in specification domains with ≥k samples.
-    
-    Clusters circuits by specifications, then retains only clusters with at least
-    k circuits. Assigns a 'spec_id' attribute to each retained circuit.
-    
-    Args:
-        dataset: List of circuit graphs with 'gain', 'bw', 'pm' attributes.
-        k: Minimum cluster size threshold. Default 10.
-        
-    Returns:
-        tuple: (filtered_circuits, labels, num_specs)
-            - filtered_circuits: List of circuits in large-enough clusters
-            - labels: List of spec_id for each circuit
-            - num_specs: Number of unique specification domains retained
-            
-    Side Effects:
-        Adds 'spec_id' attribute to each circuit in the result.
-    """
-    spec_keys = {'gain', 'bw', 'pm'}
-    spec_mp = {'gain': 1, 'bw': 1000, 'pm': 1000000}
-
-    spec_cluster_ckt = []
-    spec_dict = {}
-    spec_idx = {}
-
-    for i, g in enumerate(dataset):
-        mp_key = 0
-
-        for key in spec_keys:
-            trunc_spec = floor_to_decimal(g[key], decimals=0)
-            mp_key += trunc_spec * spec_mp[key]
-
-        if str(mp_key) in spec_dict:
-            idx = spec_idx[str(mp_key)]
-            spec_cluster_ckt[idx].append(g)
-        else:
-            spec_dict[str(mp_key)] = True
-
-            val = mp_key
-            pm = floor_to_decimal(val / 1000000, decimals=0)
-            val = val % 1000000
-            bw = floor_to_decimal(val / 1000, decimals=0)
-            val = val % 1000
-            gain = val
-
-            spec_cluster_ckt.append([g])
-            spec_idx[str(mp_key)] = len(spec_cluster_ckt) - 1
-    
-    res = []
-    labels = []
-    colors = []
-    spec_id = 0
-    for i, cluster in enumerate(spec_cluster_ckt):
-        if len(cluster) >= k:
-            for _, g in enumerate(cluster):
-                g['spec_id'] = spec_id
-                
-            res = res + cluster
-            labels= labels + [spec_id] * len(cluster)
-            spec_id += 1
-    print(len(res))
-    return res, labels, spec_id
-
-
-def get_one_specifications(args, g):
-    """Extracts and floors specifications from a single circuit graph.
-    
-    Args:
-        args: Configuration dictionary (currently unused).
-        g: Circuit graph with 'gain', 'bw', 'pm' attributes.
-        
-    Returns:
-        dict: Dictionary with floored integer values for 'gain', 'bw', 'pm'.
-    """
-    gain = floor_to_decimal(g['gain'], decimals=0)
-    bw = floor_to_decimal(g['bw'], decimals=0)
-    pm = floor_to_decimal(g['pm'], decimals=0)
-
-    return {
-        'gain': gain, 
-        'bw': bw, 
-        'pm': pm
-    }
 
 
 def get_fom_train_mean_and_std(args, train_graphs):
@@ -878,27 +737,6 @@ def transform_specification(args, batch_graphs):
     foms   = torch.tensor([g['fom'] for g in batch_graphs], dtype=torch.float).to(args['device'])
 
     return {'gains': gains, 'bws': bws, 'pms': pms, 'foms': foms}
-
-
-def transform_specification_directly(args, gains, bws, pms):
-    """Transforms specification values directly from arrays (not from graphs).
-    
-    Args:
-        args: Configuration dictionary with 'device' key.
-        gains: List or array of gain values.
-        bws: List or array of bandwidth values.
-        pms: List or array of phase margin values.
-        
-    Returns:
-        dict: Dictionary with int64 torch tensors for 'gains', 'bws', 'pms',
-             each floored to integers.
-    """
-    # truncate
-    gains  = torch.tensor([floor_to_decimal(gain, decimals=0) for gain in gains], dtype=torch.int64).to(args['device'])
-    bws    = torch.tensor([floor_to_decimal(bw, decimals=0) for bw in bws], dtype=torch.int64).to(args['device'])
-    pms    = torch.tensor([floor_to_decimal(pm, decimals=0) for pm in pms], dtype=torch.int64).to(args['device'])
-
-    return {'gains': gains, 'bws': bws, 'pms': pms}
 
 
 def transforms(args, batch_graphs, mode='train'):

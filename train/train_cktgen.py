@@ -65,7 +65,6 @@ def train(args, model, datasets, logger, optimizer, scheduler):
     
     for epoch in range(1, args['epochs']+1):
         shuffle(datasets['train'])
-        print_iter = 1
         batch_graphs = []
         train_loss = 0.0
         time_start = time.time()
@@ -78,8 +77,6 @@ def train(args, model, datasets, logger, optimizer, scheduler):
             batch_graphs.append(g)
             if len(batch_graphs) == args['batch_size'] or i == len(datasets['train']) - 1:
                 optimizer.zero_grad()
-                bsz = len(batch_graphs)
-                
                 _batch_graphs = utils_data.collate_fn(batch_graphs)
                 batch = utils_data.transforms(args, _batch_graphs)
                 
@@ -108,26 +105,9 @@ def train(args, model, datasets, logger, optimizer, scheduler):
 
                 train_loss += float(mixed_loss.item())
 
-                # acc_type                = losses['acc_type']
-                # acc_path                = losses['acc_path']
-                # acc_edge                = losses['acc_edge']
-
-                # if print_iter % args['print_iter'] == 0:
-                #     logger.info('Train. Iter %d :, Total: %0.4f, rec: %0.4f, kl: %0.4f, types: %0.4f, paths: %0.4f, sizes: %0.4f, edges: %0.4f, acc_type: %0.4f, acc_path: %0.4f, acc_edge: %0.4f'% (
-                #                 print_iter,
-                #                 avg_train_loss / (bsz * print_iter), 
-                #                 avg_recon_loss / (bsz * print_iter), 
-                #                 avg_kl_loss / (bsz * print_iter), 
-                #                 avg_type_loss / (bsz * print_iter), 
-                #                 avg_path_loss / (bsz * print_iter),
-                #                 avg_size_loss / (bsz * print_iter),
-                #                 avg_edge_loss / (bsz * print_iter),
-                #                 acc_type, acc_path, acc_edge))
-                
                 mixed_loss.backward()
                 optimizer.step()
                 batch_graphs = []
-                print_iter = print_iter + 1
 
             else:
                 continue

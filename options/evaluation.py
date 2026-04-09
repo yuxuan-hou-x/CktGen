@@ -5,10 +5,6 @@ Copyright 2025 CktGen Authors.
 Licensed under the MIT License.
 """
 
-
-import argparse
-import os
-
 def add_evaluate_options(parser):
     """
     Add evaluation and model checkpoint options.

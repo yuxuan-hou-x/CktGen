@@ -32,3 +32,5 @@ scp*.sh
 **/*.bmp
 **/*.svg
 **/*.yaml
+**/*.pth
+**/*.pkl

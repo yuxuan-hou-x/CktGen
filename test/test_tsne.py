@@ -8,11 +8,8 @@ Licensed under the MIT License.
 
 import os
 import json
-import torch
 
 import numpy as np
-import seaborn as sns
-import random
 import matplotlib.pyplot as plt
 import utils.logger as utils_logger
 import utils.data as utils_data
@@ -21,13 +18,9 @@ from utils.checkpoint import load_model_checkpoint
 
 from pathlib import Path
 from sklearn.manifold import TSNE
-from sklearn.preprocessing import StandardScaler
 from options.training import parser
 from dataset.get_datasets import get_datasets
 from models.get_model import get_model
-from matplotlib import font_manager
-
-font_manager.fontManager.addfont('/mnt/data/hyx/projects/CktGen-Exp/assets/arial.ttf')
 
 def plot_one_tsne(args, ckt_latents, labels, output_path):
     """Plots t-SNE visualization of circuit latent embeddings.
@@ -47,8 +40,6 @@ def plot_one_tsne(args, ckt_latents, labels, output_path):
         - Saves plot as SVG to output_path
         - Hides axes for cleaner visualization
     """
-    plt.rcParams['font.family'] = 'arial'
-
     # t-SNE dimensionality reduction
     tsne = TSNE(n_components=2, random_state=42)
     latents_2d = tsne.fit_transform(ckt_latents)
@@ -70,7 +61,7 @@ def plot_one_tsne(args, ckt_latents, labels, output_path):
 
 
 
-def plot_two_tsne(args, ckt_latents, spec_latents, labels, spec_labels, output_path):
+def plot_two_tsne(args, ckt_latents, spec_latents, labels, output_path):
     """Plots t-SNE visualization of both circuit and specification latent embeddings.
     
     Reduces high-dimensional circuit and specification latents to 2D using t-SNE 
@@ -83,7 +74,6 @@ def plot_two_tsne(args, ckt_latents, spec_latents, labels, spec_labels, output_p
         ckt_latents: Circuit latent embeddings, shape (1000, latent_dim).
         spec_latents: Specification latent embeddings, shape (1000, latent_dim).
         labels: Cluster labels for latents, shape (2000,). Range: 0-9.
-        spec_labels: Currently unused (for future extension).
         output_path: Path to save the output SVG file.
         
     Notes:
@@ -93,8 +83,6 @@ def plot_two_tsne(args, ckt_latents, spec_latents, labels, spec_labels, output_p
         - Uses tab10 colormap for up to 10 distinct clusters
         - Saves plot as SVG to output_path
     """
-    plt.rcParams['font.family'] = 'arial'
-
     all_latents = np.concatenate([ckt_latents, spec_latents], axis=0)  # (2000, latent_dim)
 
     types = np.array([0]*1000 + [1]*1000)  # 0=data, 1=class latent
@@ -116,12 +104,6 @@ def plot_two_tsne(args, ckt_latents, spec_latents, labels, spec_labels, output_p
         # Class latent (dark color/marker2)
         idx_class = np.where((labels == i) & (types == 1))[0]
         plt.scatter(latents_2d[idx_class,0], latents_2d[idx_class,1], color=cmap(i, 1.0), label=f'Class {i} class_latent', alpha=0.8, s=150, marker='+', linewidths=0.7)
-
-    # Only show legend once (deduplicate)
-    handles, labels_leg = plt.gca().get_legend_handles_labels()
-    
-    from collections import OrderedDict
-    by_label = OrderedDict(zip(labels_leg, handles))
 
     plt.axis('off')
     plt.tight_layout()
@@ -155,12 +137,9 @@ def tsne_on_datasets(args, model, datasets, output_path):
         - Evaluator: Generates circuit and spec embeddings
         - VAE/CVAEGAN/LDT: Encodes to circuit latents only
     """
-    all_specs = utils_data.get_specifications(datasets['test'])
-
     dataset_all = datasets['train'] + datasets['test']
     specs_clustered_ckts = utils_data.get_specification_domain(dataset_all)
     sorted_cluster = sorted(specs_clustered_ckts, key=lambda x: len(x), reverse=True)
-    spec_labels = []
     all_ckt_latents = []
     all_spec_latents = []
     cluster_num = 10
@@ -193,7 +172,7 @@ def tsne_on_datasets(args, model, datasets, output_path):
         labels = labels + labels
         flat_ckt_latents = np.concatenate(all_ckt_latents, axis=0)
         flat_spec_latents = np.concatenate(all_spec_latents, axis=0)
-        return plot_two_tsne(args, flat_ckt_latents, flat_spec_latents, np.array(labels), spec_labels, output_path)
+        return plot_two_tsne(args, flat_ckt_latents, flat_spec_latents, np.array(labels), output_path)
     else:
         labels = [i // 100 for i in range(1000)]
         flat_ckt_latents = np.concatenate(all_ckt_latents, axis=0)

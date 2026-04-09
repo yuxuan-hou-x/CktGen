@@ -68,8 +68,6 @@ def train(args, model, datasets, logger, optimizer, scheduler):
             batch_graphs.append(g)
             if len(batch_graphs) == args['batch_size'] or i == len(datasets['train']) - 1:
                 optimizer.zero_grad()
-                bsz = len(batch_graphs)
-                
                 _batch_graphs = utils_data.collate_fn(batch_graphs)
                 batch = utils_data.transforms(args, _batch_graphs)
 

@@ -63,7 +63,6 @@ def train(args, model, datasets, logger, optimizer, scheduler):
     
     for epoch in range(1, args['epochs']+1):
         shuffle(datasets['train'])
-        print_iter = 1
         batch_graphs = []
         train_loss = 0.0
         time_start = time.time()
@@ -75,8 +74,6 @@ def train(args, model, datasets, logger, optimizer, scheduler):
             batch_graphs.append(g)
             if len(batch_graphs) == args['batch_size'] or i == len(datasets['train']) - 1:
                 optimizer.zero_grad()
-                bsz = len(batch_graphs)
-                
                 _batch_graphs = utils_data.collate_fn(batch_graphs)
                 batch = utils_data.transforms(args, _batch_graphs)
 
@@ -88,16 +85,9 @@ def train(args, model, datasets, logger, optimizer, scheduler):
 
                 train_loss += float(loss.item())
 
-                # if print_iter % args['print_iter'] == 0:
-                #     logger.info('Train. Iter: %d , loss: %0.4f'% (
-                #                 print_iter,
-                #                 avg_train_loss / (bsz * print_iter), 
-                #             )
-                #         )
                 loss.backward()
                 optimizer.step()
                 batch_graphs = []
-                print_iter = print_iter + 1
             else:
                 continue
 

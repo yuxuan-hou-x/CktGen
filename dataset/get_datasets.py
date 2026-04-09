@@ -8,7 +8,6 @@ Licensed under the MIT License.
 
 import os
 import pickle
-import argparse
 import utils.data as utils_data
 import utils.paths as utils_paths
 import pandas as pd
@@ -50,8 +49,6 @@ def get_datasets(args):
     """
     
     ##### ---- read from path ---- #####
-    datasets = {}
-    
     # Use centralized path management for reliable path resolution
     args['data_type'] = 'igraph'
     

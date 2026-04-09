@@ -5,18 +5,8 @@ Copyright 2025 CktGen Authors.
 Licensed under the MIT License.
 """
 
-
-import os
 import sys
 import logging
-import numpy as np
-import importlib
-import torch
-from torch.nn import functional as F
-
-MODELTYPES = ['cvae', 'cae', 'ldt']  # not used: 'cae'
-ARCHINAMES = ['pace', 'cktgnn', 'dvae', 'dagnn']
-
 
 def serialize(obj):
     """Serializes objects for JSON encoding, particularly torch.device objects.
@@ -33,9 +23,7 @@ def serialize(obj):
     import torch
     if isinstance(obj, torch.device):
         return str(obj)
-    else:
-        return obj
-    raise TypeError('Type not serializable')
+    return obj
 
 
 def get_logger(out_dir, exp_name=None):
@@ -76,21 +64,3 @@ def get_logger(out_dir, exp_name=None):
     logger.addHandler(file_hdlr)
     logger.addHandler(strm_hdlr)
     return logger
-
-
-    # compute train accuracy
-    right_types, right_paths = 0, 0
-
-    for idx in range(2, max_n):
-        node_type_probs = F.softmax(node_type_scores, 1).cpu().detach().numpy()
-        node_path_probs = F.softmax(node_path_scores, 1).cpu().detach().numpy()
-
-        new_types = [np.random.choice(range(27), p=node_type_probs[i])
-                     for i in range(len(G))]
-        new_path = [np.random.choice(range(max_n), p=node_path_probs[i])
-                    for i in range(len(G))]
-
-        right_types += (new_types == type_gnd[idx]).sum().item()
-        right_paths += (new_path == path_gnd[idx]).sum().item()
-        
-    return right_types / ((max_n - 1) * bsz), right_paths / ((max_n - 1) * bsz)

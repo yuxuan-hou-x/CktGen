@@ -6,12 +6,10 @@ Licensed under the MIT License.
 """
 
 
-import os
-import time
 import torch
 import utils.data as utils_data
 from tqdm import tqdm
-from evaluation.tools import is_same_DAG, is_valid_DAG, is_valid_Circuit, ratio_same_DAG
+from evaluation.tools import is_same_DAG
 import evaluation.prior_validity as eval_prior_validity
 
 @torch.no_grad()
@@ -51,15 +49,13 @@ def evaluate(args, model, datasets, logger):
 
     # sample_times, decode_times = 10, 10
     sample_times, decode_times = 1, 1
-    avg_rec_loss, pred_loss = 0, 0
+    avg_rec_loss = 0
     rec_acc = 0
     num_perfect_rec = 0
     
     # print_iter = 1
     gnd_graphs = []
     
-    tot_time = 0
-    time_start = time.time()
     logger.info('###############################################################################')
     logger.info('                  Starting Reconstruction Evaluation')
     logger.info('###############################################################################')
@@ -74,7 +70,7 @@ def evaluate(args, model, datasets, logger):
             batch.update(model.archi.encode(batch)) # encode and get mu, logvar token
             batch['ckt_latents'] = model.sample_from_distribution(batch['ckt_dists'], sample_mean=True)
 
-            mixed_loss, recon_losses = model.compute_loss(batch)
+            mixed_loss, _ = model.compute_loss(batch)
             avg_rec_loss += mixed_loss.item()
             for _ in range(sample_times):
                 batch['ckt_latents'] = model.sample_from_distribution(batch['ckt_dists'], sample_mean=True)
@@ -90,9 +86,6 @@ def evaluate(args, model, datasets, logger):
             # print_iter = print_iter + 1
     
     avg_rec_loss /= len(datasets['test'])
-    # time_end = time.time()
-    # tot_time += time_end - time_start
-    # comp_time = time_end - time_start
     rec_acc = num_perfect_rec / (len(datasets['test']) * sample_times * decode_times)
     
     logger.info('###############################################################################')

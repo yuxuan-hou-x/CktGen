@@ -6,8 +6,6 @@ Licensed under the MIT License.
 """
 
 
-from argparse import ArgumentParser  # noqa
-
 def add_misc_options(parser):
     """
     Add miscellaneous experiment configuration options.

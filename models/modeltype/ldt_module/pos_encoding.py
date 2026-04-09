@@ -7,9 +7,7 @@ Licensed under the MIT License.
 import math
 import torch
 
-import numpy as np
-from torch import nn, Tensor
-from typing import List, Optional
+from torch import nn
 
  
 def build_position_encoding(dim):

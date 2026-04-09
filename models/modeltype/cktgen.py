@@ -251,24 +251,3 @@ class CKTGEN(nn.Module):
             mixed_loss += losses[ltype] * lam
 
         return mixed_loss, losses
-
-
-    def predict_specificaetion(self, ckt_latents, topk=1):
-        """Predicts specifications from circuit latents (for guidance).
-        
-        Args:
-            ckt_latents: Circuit latent vectors of shape [batch_size, latent_dim].
-            topk: Number of top predictions to return.
-            
-        Returns:
-            Dictionary with keys 'gain', 'bw', 'pm', each containing top-k predictions.
-        """
-        logits_gain = self.fc_gain(ckt_latents)
-        logits_bw   = self.fc_bw(ckt_latents)
-        logits_pm   = self.fc_pm(ckt_latents)
-
-        _, pred_gain = torch.topk(logits_gain, k=topk, dim=-1)
-        _, pred_bw   = torch.topk(logits_bw, k=topk, dim=-1)
-        _, pred_pm   = torch.topk(logits_pm, k=topk, dim=-1)
-
-        return {'gain': pred_gain, 'bw': pred_bw, 'pm': pred_pm}

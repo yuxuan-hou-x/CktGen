@@ -16,7 +16,6 @@ import random
 from scipy import linalg
 from evaluation.tools import is_valid_Circuit, compute_retrieval_precision
 from utils.checkpoint import load_model_checkpoint
-from utils.visualize import plot_graph
 
 def calculate_spec_correct_ckt(gnd_specs, predict_specs):
     """Calculates specification accuracy for generated circuits.
@@ -233,7 +232,7 @@ def evaluate_condition_generate(args, evaluator, datasets, logger, model):
     embs_gnd = []
     infer_time = 0
 
-    for rnd in tqdm(range(sample_rounds), desc="Evaluating Condition Generation", unit="Round"):
+    for _ in tqdm(range(sample_rounds), desc="Evaluating Condition Generation", unit="Round"):
         ckts = []
 
         for i, cluster in enumerate(specs_clustered_ckts): # random select a ground-truth
@@ -394,42 +393,6 @@ def evaluate_condition_generate(args, evaluator, datasets, logger, model):
         'avg_fom': avg_fom,
         'rto_valid_ckt': rto_valid_ckt, 
     }
-
-
-@torch.no_grad()
-def generate_circuits(args, model, datasets, logger):
-    """Generates circuits from specifications and logs/visualizes results."""
-    sample_rounds = 120
-    specs_clustered_ckts = utils_data.get_specification_domain(datasets['test'])
-    valid_ckts = []
-    num_valid_ckts = 0
-
-    for rnd in tqdm(range(sample_rounds), desc="Generating circuits", unit="sample"):
-        ckts = []
-        
-        for i, cluster in enumerate(specs_clustered_ckts):
-            random_select_g = random.sample(cluster, 1)[0]
-            ckts.append(random_select_g)
-
-        _ckts = utils_data.collate_fn(ckts)
-        batch = utils_data.transforms(args, _ckts)
-        
-        gen_ckts = model(args, batch)
-        
-        for idx, g in enumerate(gen_ckts):
-            logger.info('#########################' + args['modelname'] + '_' + str(idx) + '#########################')
-            logger.info(g)
-            for vi in range(g.vcount()):
-                logger.info(g.vs[vi].attributes())
-            if is_valid_Circuit(g, start_symbol=(args['archiname']=='pace')):
-                num_valid_ckts += 1
-                valid_ckts.append(g)
-
-        for i, g in enumerate(gen_ckts[:4]):
-            plot_graph(args, g, args['modelname'] + '_' + str(i), backbone=True, pdf=False)
-
-    return {'num_valid_ckts': num_valid_ckts, 'valid_ckts': valid_ckts}
-
 
 def evaluate(args, model, datasets, logger):
     """Main evaluation entry point for conditional circuit generation.

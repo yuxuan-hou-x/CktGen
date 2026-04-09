@@ -9,7 +9,6 @@ Licensed under the MIT License.
 import math
 import torch
 import torch.nn as nn
-import numpy as np
 import utils.eval_reconstruct as utils_eval_reconstruct
 import utils.data as utils_data
 from torch.nn import functional as F
@@ -455,7 +454,7 @@ class TransGPT_Cross(nn.Module):
         if len(ckt_latents.shape) == 2:
             ckt_latents = ckt_latents.unsqueeze(0)
 
-        b, t = v_paths.shape
+        _, t = v_paths.shape
         t = t + 1
         assert t <= self.block_size, 'Cannot forward, model block size is exhausted.'
         
@@ -477,10 +476,6 @@ class TransGPT_Cross(nn.Module):
         
         x = self.drop(g_cat + posi_embs)    # (bs, max_n * 2, input_dim)
         x = self.blocks(x)
-        x_cat = torch.cat((x[:, :t, :],
-                           x[:, t:t*2, :],
-                           x[:, t*2:t*3, :],), dim=-1)
-        
         logits_type = self.type_head(x[:, :t, :])
         logits_path = self.path_head(x[:, t:t*2, :])
         logits_topo = self.topo_head(x[:, t*2:t*3, :])

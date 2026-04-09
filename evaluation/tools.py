@@ -6,10 +6,7 @@ Licensed under the MIT License.
 """
 
 
-import os
-import time
 import torch
-import numpy as np
 import utils.data as utils_data
 from tqdm import tqdm
 
@@ -21,7 +18,7 @@ def compute_retrieval_precision(spec_latents, ckt_latents, gnds):
     spec_latents = torch.nn.functional.normalize(spec_latents, dim=-1)
 
     sim_matrix = ckt_latents @ spec_latents.T    # (b, d) x (d, b) -> (b, b)
-    sim_scores, indices = torch.sort(sim_matrix, dim=1, descending=True)
+    _, indices = torch.sort(sim_matrix, dim=1, descending=True)
 
     ranks = []
     for i, gnd in enumerate(gnds):
@@ -38,31 +35,6 @@ def compute_retrieval_precision(spec_latents, ckt_latents, gnds):
     avg   = torch.mean(ranks.float()).item()
 
     return {"Top1": top1, "Top2": top2, "Top3": top3, "Top5": top5, "Top10": top10, 'avg': avg}
-
-def euclidean_distance_matrix(matrix1, matrix2):
-    """Computes pairwise Euclidean distances between two sets of vectors.
-    
-    Efficiently calculates all pairwise L2 distances using vectorized operations
-    instead of nested loops. Uses the identity:
-    ||a - b||^2 = ||a||^2 + ||b||^2 - 2*a·b
-    
-    Args:
-        matrix1: Numpy array of shape (N1, D) - first set of vectors.
-        matrix2: Numpy array of shape (N2, D) - second set of vectors.
-        
-    Returns:
-        np.ndarray: Distance matrix of shape (N1, N2) where
-                   dists[i, j] = ||matrix1[i] - matrix2[j]||_2
-                   
-    Raises:
-        AssertionError: If feature dimensions don't match.
-    """
-    assert matrix1.shape[1] == matrix2.shape[1]
-    d1 = -2 * np.dot(matrix1, matrix2.T)    # shape (num_test, num_train)
-    d2 = np.sum(np.square(matrix1), axis=1, keepdims=True)    # shape (num_test, 1)
-    d3 = np.sum(np.square(matrix2), axis=1)     # shape (num_train, )
-    dists = np.sqrt(d1 + d2 + d3)  # broadcasting
-    return dists
 
 
 def ratio_same_DAG(G0, G1):
