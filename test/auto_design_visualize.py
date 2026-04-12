@@ -14,16 +14,12 @@ import matplotlib.pyplot as plt
 import pickle
 import argparse
 from pathlib import Path
-from matplotlib import font_manager
 import pandas as pd
 import numpy as np
 from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
 
-# Configure matplotlib font and styling
-font_manager.fontManager.addfont('./arial.ttf')
 
-plt.rcParams['font.family'] = 'arial'
 plt.rcParams['axes.linewidth'] = 1.2
 plt.rcParams['xtick.direction'] = 'out'
 plt.rcParams['ytick.direction'] = 'out'
