@@ -5,6 +5,7 @@ Copyright 2025 CktGen Authors.
 Licensed under the MIT License.
 """
 
+from argparse import ArgumentParser
 
 def add_misc_options(parser):
     """
